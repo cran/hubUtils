@@ -4,10 +4,15 @@
 \alias{read_config}
 \title{Read a hub config file into R}
 \usage{
-read_config(hub_path, config = c("tasks", "admin", "model-metadata-schema"))
+read_config(
+  hub_path,
+  config = c("tasks", "admin", "model-metadata-schema", "target-data"),
+  silent = TRUE
+)
 }
 \arguments{
-\item{hub_path}{Either a character string path to a local Modeling Hub directory
+\item{hub_path}{Either a character string path to a local Modeling Hub directory,
+a character string of a URL to a GitHub repository
 or an object of class \verb{<SubTreeFileSystem>} created using functions \code{\link[arrow:s3_bucket]{arrow::s3_bucket()}}
 or \code{\link[arrow:gs_bucket]{arrow::gs_bucket()}} by providing a string S3 or GCS bucket name or path to a
 Modeling Hub directory stored in the cloud.
@@ -15,10 +20,15 @@ For more details consult the
 \href{https://arrow.apache.org/docs/r/articles/fs.html}{Using cloud storage (S3, GCS)}
 in the \code{arrow} package.}
 
-\item{config}{Name of config file to validate. One of \code{"tasks"} or \code{"admin"}.}
+\item{config}{Type of config file to read. One of \code{"tasks"}, \code{"admin"} or
+\code{"model-metadata-schema"}. Default is \code{"tasks"}.}
+
+\item{silent}{Logical. If \code{TRUE}, suppress warnings. Default is \code{FALSE}.}
 }
 \value{
-The contents of the config as an R list.
+The contents of the config file as an R list. If possible, the output is
+further converted to a \verb{<config>} class object before returning. Note that
+\code{"model-metadata-schema"} files are never converted to a \verb{<config>} object.
 }
 \description{
 Read a hub config file into R
@@ -29,6 +39,10 @@ hub_path <- system.file("testhubs/simple", package = "hubUtils")
 read_config(hub_path, "tasks")
 read_config(hub_path, "admin")
 
+# Read config file from a GitHub hub repository
+github_url <- "https://github.com/hubverse-org/example-simple-forecast-hub"
+read_config(github_url)
+read_config(github_url, "admin")
 \dontshow{if (asNamespace("hubUtils")$not_rcmd_check() && requireNamespace("arrow", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Read config file from AWS S3 bucket hub
 hub_path <- arrow::s3_bucket("hubverse/hubutils/testhubs/simple/")

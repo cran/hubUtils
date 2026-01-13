@@ -1,6 +1,7 @@
 #' Get the JSON schema download URL for a given config file version
 #'
-#' @param config Name of config file to validate. One of `"tasks"` or `"admin"`.
+#' @param config Name of config file to validate. One of `"tasks"`, `"admin"`,
+#' `"model"` or `"target-data"`.
 #' @param version A valid version of hubverse
 #'   [schema](https://github.com/hubverse-org/schemas)
 #'   (e.g. `"v0.0.1"`).
@@ -14,8 +15,11 @@
 #'
 #' @examplesIf asNamespace("hubUtils")$not_rcmd_check()
 #' get_schema_url(config = "tasks", version = "v0.0.0.9")
-get_schema_url <- function(config = c("tasks", "admin", "model"),
-                           version, branch = "main") {
+get_schema_url <- function(
+  config = c("tasks", "admin", "model", "target-data"),
+  version,
+  branch = "main"
+) {
   config <- rlang::arg_match(config)
   rlang::check_required(version)
 
@@ -24,7 +28,9 @@ get_schema_url <- function(config = c("tasks", "admin", "model"),
   validate_schema_version(version, branch = branch)
 
   schema_repo <- "hubverse-org/schemas"
-  glue::glue("https://raw.githubusercontent.com/{schema_repo}/{branch}/{version}/{config}-schema.json")
+  glue::glue(
+    "https://raw.githubusercontent.com/{schema_repo}/{branch}/{version}/{config}-schema.json"
+  )
 }
 
 #' Get a vector of valid schema version
@@ -39,10 +45,23 @@ get_schema_url <- function(config = c("tasks", "admin", "model"),
 #' @examplesIf asNamespace("hubUtils")$not_rcmd_check()
 #' get_schema_valid_versions()
 get_schema_valid_versions <- function(branch = "main") {
-  branches <- gh(
-    "GET /repos/hubverse-org/schemas/branches"
-  ) %>%
-    vapply("[[", "", "name")
+  if (branch == "main") {
+    schema_path <- system.file("schemas", package = "hubUtils")
+    return(list.files(schema_path, pattern = "^v"))
+  }
+  branches <- tryCatch(
+    gh(
+      "GET /repos/hubverse-org/schemas/branches"
+    ) |>
+      vapply("[[", "", "name"),
+    error = function(e) {
+      cli::cli_abort(c(
+        "x" = "Failed to connect to GitHub API to
+               retrieve schema repository branch information.",
+        "i" = "Please check your internet connection."
+      ))
+    }
+  )
 
   if (!branch %in% branches) {
     cli::cli_abort(c(
@@ -52,8 +71,18 @@ get_schema_valid_versions <- function(branch = "main") {
     ))
   }
 
-  req <- gh("GET /repos/hubverse-org/schemas/git/trees/{branch}",
-    branch = branch
+  req <- tryCatch(
+    gh(
+      "GET /repos/hubverse-org/schemas/git/trees/{branch}",
+      branch = branch
+    ),
+    error = function(e) {
+      cli::cli_abort(c(
+        "x" = "Failed to connect to GitHub API to
+               retrieve schema version information.",
+        "i" = "Please check your internet connection."
+      ))
+    }
   )
 
   types <- vapply(req$tree, "[[", "", "type")
@@ -75,6 +104,23 @@ get_schema_valid_versions <- function(branch = "main") {
 #' schema_url <- get_schema_url(config = "tasks", version = "v0.0.0.9")
 #' get_schema(schema_url)
 get_schema <- function(schema_url) {
+  # If the branch is "main", then we can use the stored schemas inside the
+  # package.
+  pieces <- extract_schema_info(schema_url)
+  if (pieces$branch[1] == "main") {
+    version <- pieces$version
+    config <- pieces$config
+    path <- system.file("schemas", version, config, package = "hubUtils")
+    if (fs::file_exists(path)) {
+      return(jsonlite::prettify(readLines(path)))
+    } else {
+      cli::cli_alert_warning(
+        "{.file {version}/{config}} not found.
+        This could mean your version of hubUtils is outdated.
+        Attempting to connect to GitHub."
+      )
+    }
+  }
   response <- try(curl_fetch_memory(schema_url), silent = TRUE)
 
   if (inherits(response, "try-error")) {
@@ -86,14 +132,37 @@ get_schema <- function(schema_url) {
   }
 
   if (response$status_code == 200L) {
-    response$content %>%
-      rawToChar() %>%
+    response$content |>
+      rawToChar() |>
       jsonlite::prettify()
   } else {
     cli::cli_abort(
       "Attempt to download schema from {.url {schema_url}} failed with status code: {.field {response$status_code}}."
     )
   }
+}
+
+#' Given a vector of URLs, this will extract the branch version and config for
+#' each
+#'
+#' @param id a url for a given hubverse schema file
+#' @return a data frame with three columns: branch, version, and config
+#' @importFrom stats setNames
+#'
+#' @noRd
+#' @examples
+#' urls <- c(
+#'   "https://raw.githubusercontent.com/hubverse-org/schemas/main/v3.0.1/tasks-schema.json",
+#'   "https://raw.githubusercontent.com/hubverse-org/schemas/main/v2.0.0/admin-schema.json",
+#'   "https://raw.githubusercontent.com/hubverse-org/schemas/br-v4.0.0/v4.0.0/tasks-schema.json"
+#' )
+#' extract_schema_info(urls)
+extract_schema_info <- function(id) {
+  lead <- "^https[:][/][/]raw.githubusercontent.com[/]hubverse-org[/]schemas[/]"
+  good_stuff <- "(.+?)[/](v[0-9.]+?)[/]([a-z-]+?-schema.json)$"
+  pattern <- paste0(lead, good_stuff)
+  template <- setNames(character(3), c("branch", "version", "config"))
+  utils::strcapture(pattern, id, template)
 }
 
 #' Get the latest schema version
@@ -111,12 +180,14 @@ get_schema <- function(schema_url) {
 #' # Get the latest version of the schema
 #' @examplesIf asNamespace("hubUtils")$not_rcmd_check()
 #' get_schema_version_latest()
-#' get_schema_version_latest(schema_version = "v1.0.0")
-get_schema_version_latest <- function(schema_version = "latest",
-                                      branch = "main") {
+#' get_schema_version_latest(schema_version = "v3.0.0")
+get_schema_version_latest <- function(
+  schema_version = "latest",
+  branch = "main"
+) {
   if (schema_version == "latest") {
-    get_schema_valid_versions(branch = branch) %>%
-      sort() %>%
+    get_schema_valid_versions(branch = branch) |>
+      sort() |>
       utils::tail(1)
   } else {
     schema_version
@@ -145,7 +216,11 @@ validate_schema_version <- function(schema_version, branch) {
 #' @return The schema version number as a character string.
 #' @export
 #' @examples
-#' extract_schema_version("schema_version: v1.0.0")
+#' extract_schema_version("schema_version: v3.0.0")
+#' extract_schema_version("refs/heads/main/v3.0.0")
 extract_schema_version <- function(id) {
-  stringr::str_extract(id, "v([0-9]\\.){2}[0-9](\\.[0-9]+)?")
+  stringr::str_extract(
+    id,
+    "v[0-9]+\\.[0-9]+\\.[0-9]+(\\.9([0-9]+)?)?"
+  )
 }

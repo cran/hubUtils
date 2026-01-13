@@ -4,10 +4,11 @@
 \alias{is_v3_hub}
 \title{Is hub configured using v3.0.0 schema?}
 \usage{
-is_v3_hub(hub_path, config = c("tasks", "admin"))
+is_v3_hub(hub_path, config = c("tasks", "admin", "target-data"))
 }
 \arguments{
-\item{hub_path}{Either a character string path to a local Modeling Hub directory
+\item{hub_path}{Either a character string path to a local Modeling Hub directory,
+a character string of a URL to a GitHub repository
 or an object of class \verb{<SubTreeFileSystem>} created using functions \code{\link[arrow:s3_bucket]{arrow::s3_bucket()}}
 or \code{\link[arrow:gs_bucket]{arrow::gs_bucket()}} by providing a string S3 or GCS bucket name or path to a
 Modeling Hub directory stored in the cloud.
@@ -15,10 +16,11 @@ For more details consult the
 \href{https://arrow.apache.org/docs/r/articles/fs.html}{Using cloud storage (S3, GCS)}
 in the \code{arrow} package.}
 
-\item{config}{Name of config file to validate. One of \code{"tasks"} or \code{"admin"}.}
+\item{config}{Type of config file to read. One of \code{"tasks"}, \code{"admin"} or
+\code{"model-metadata-schema"}. Default is \code{"tasks"}.}
 }
 \value{
-Logical, whether the hub is configured using v3.0.0 schema.
+Logical, whether the hub is configured using v3.0.0 schema or greater.
 }
 \description{
 Is hub configured using v3.0.0 schema?

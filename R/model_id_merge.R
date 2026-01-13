@@ -30,7 +30,8 @@
 model_id_merge <- function(tbl, sep = "-") {
   # check all required columns present
   if (!all(c("model_abbr", "team_abbr") %in% names(tbl))) {
-    missing_cols <- c("model_abbr", "team_abbr")[ # nolint: object_usage_linter
+    # nolint next: object_usage_linter
+    missing_cols <- c("model_abbr", "team_abbr")[
       !c("model_abbr", "team_abbr") %in% names(tbl)
     ]
     cli::cli_abort(c(
@@ -58,7 +59,8 @@ model_id_merge <- function(tbl, sep = "-") {
   if ("model_id" %in% names(tbl)) {
     cli::cli_alert_warning("Overwritting current {.arg model_id} column.")
   }
-  tbl$model_id <- paste(tbl[, "team_abbr", drop = TRUE],
+  tbl$model_id <- paste(
+    tbl[, "team_abbr", drop = TRUE],
     tbl[, "model_abbr", drop = TRUE],
     sep = sep
   )
@@ -68,7 +70,7 @@ model_id_merge <- function(tbl, sep = "-") {
   col_order <- names(tbl)[names(tbl) != "model_id"]
   tbl <- tbl[, c("model_id", col_order)]
 
-  return(tbl)
+  tbl
 }
 
 #' @return a [tibble][tibble::tibble()] with `model_id` column split into separate
@@ -86,17 +88,21 @@ model_id_split <- function(tbl, sep = "-") {
   }
   # create model_abbr team_abbr columns
   if (any(c("model_abbr", "team_abbr") %in% names(tbl))) {
-    existing_cols <- c("model_abbr", "team_abbr")[ # nolint: object_usage_linter
+    # nolint next: object_usage_linter
+    existing_cols <- c("model_abbr", "team_abbr")[
       !c("model_abbr", "team_abbr") %in% names(tbl)
     ]
-    cli::cli_alert_warning("Overwritting current {.val {existing_cols}} column{?s}.")
+    cli::cli_alert_warning(
+      "Overwritting current {.val {existing_cols}} column{?s}."
+    )
   }
 
   # Ensure column model_id values do not contain more than one instance of sep.
   n_sep_gt_1 <- lengths(regmatches(
     tbl$model_id,
     gregexpr(sep, tbl$model_id, fixed = TRUE)
-  )) > 1L
+  )) >
+    1L
   if (any(n_sep_gt_1)) {
     cli::cli_abort(c(
       "x" = "All {.arg model_id} values must only contain a single separator
@@ -107,7 +113,6 @@ model_id_split <- function(tbl, sep = "-") {
     ))
   }
 
-
   tbl[, "model_abbr"] <- gsub(paste0("^.*", sep), "", tbl$model_id)
   tbl[, "team_abbr"] <- gsub(paste0(sep, ".*$"), "", tbl$model_id)
 
@@ -117,5 +122,5 @@ model_id_split <- function(tbl, sep = "-") {
   col_order <- names(tbl)[!names(tbl) %in% c("team_abbr", "model_abbr")]
   tbl <- tbl[, c("team_abbr", "model_abbr", col_order)]
 
-  return(tbl)
+  tbl
 }

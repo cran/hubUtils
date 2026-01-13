@@ -4,17 +4,39 @@
 \alias{read_config_file}
 \title{Read a JSON config file from a path}
 \usage{
-read_config_file(config_path)
+read_config_file(config_path, silent = TRUE)
 }
 \arguments{
-\item{config_path}{path to JSON config file}
+\item{config_path}{Either a character string of a path to a local JSON config
+file, a character string of the URL to the \strong{raw contents} of a JSON config
+file (e.g on GitHub) or
+an object of class \verb{<SubTreeFileSystem>} created using functions
+\code{\link[arrow:s3_bucket]{arrow::s3_bucket()}} and associated methods for creating paths to JSON config
+files within the bucket.}
+
+\item{silent}{Logical. If \code{TRUE}, suppress warnings. Default is \code{FALSE}.}
 }
 \value{
-a list representation of the JSON config file
+The contents of the config file as an R list. If possible, the output is
+further converted to a \verb{<config>} class object before returning. Note that
+\code{"model-metadata-schema"} files are never converted to a \verb{<config>} object.
 }
 \description{
 Read a JSON config file from a path
 }
 \examples{
+# Read local config file
 read_config_file(system.file("config", "tasks.json", package = "hubUtils"))
+# Read config file from URL
+url <- paste0(
+  "https://raw.githubusercontent.com/hubverse-org/",
+  "example-simple-forecast-hub/refs/heads/main/hub-config/tasks.json"
+)
+read_config_file(url)
+\dontshow{if (asNamespace("hubUtils")$not_rcmd_check() && requireNamespace("arrow", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# Read config file from AWS S3 bucket hub
+hub_path <- arrow::s3_bucket("hubverse/hubutils/testhubs/simple/")
+config_path <- hub_path$path("hub-config/admin.json")
+read_config_file(config_path)
+\dontshow{\}) # examplesIf}
 }

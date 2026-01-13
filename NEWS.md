@@ -1,3 +1,82 @@
+# hubUtils 1.2.0
+
+* Improved error handling when internet resources are unavailable. Functions that access remote URLs now fail gracefully with informative error messages (#272).
+
+# hubUtils 1.1.0
+
+* Added utility functions for extracting properties from `target-data.json` configuration files (v6.0.0 schema):
+  - `get_date_col()`: Get the name of the date column across hub data.
+  - `get_observable_unit()`: Get observable unit column names with support for dataset-specific overrides.
+  - `get_versioned()`: Get whether target data is versioned with inheritance from global settings.
+  - `get_has_output_type_ids()`: Get whether oracle-output data has output_type/output_type_id columns.
+  - `get_non_task_id_schema()`: Get the schema for non-task ID columns in time-series data.
+* Moved `has_target_data_config()` from `hubAdmin` package to `hubUtils`. This function checks if a target-data.json file exists in a hub (#260).
+
+# hubUtils 1.0.0
+
+* Added latest schema version (v6.0.0).
+* Added support for `target-data` config files in `get_schema_url()`, `read_config()`, `get_version_hub()`, and `is_v3_hub()` (#252).
+* Added two lightweight example v6 hubs for use in examples and tests:
+  - `testhubs/v6/target_file` — target data stored in single files.
+  - `testhubs/v6/target_dir` — hive-partitioned target data.
+
+
+# hubUtils 0.7.0
+
+* Added two lightweight example v5 hubs for use in examples and tests:
+  - `testhubs/v5/target_file` — target data stored in single files.
+  - `testhubs/v5/target_dir` — hive-partitioned target data. These hubs are complete and valid, enabling faster examples and checks
+  without requiring a clone of the public example hub repository.
+
+# hubUtils 0.6.0
+
+* Added `convert_output_type()` function to convert model outputs from one output type to another (currently only supports sample to mean, median, and quantile) (#212, #214, #215)
+* `convert_output_type()` now supports transformations involving output type IDs dependent on task ID variable values (#222)
+* Added last schema version (v5.1.0)
+
+# hubUtils 0.5.0
+
+* `read_config_file` now accepts a URL to the **raw contents** of a JSON config file as well as an object of class `<SubTreeFileSystem>` pointing to a config file in an S3 cloud hub  (#209). This enables reading config files directly from GitHub S3 cloud hubs without having to clone the contents of a hub locally.   
+* `read_config` now also accepts a URL to of a fully configured hub repository hosted on GitHub.
+* Added utilities for working with URLs:
+  - `is_url()`: checks whether a character string is a URL.
+  - `is_valid_url()`: checks whether a URL is valid and reachable.
+  - `is_github_url()`: checks whether a URL is a `github.com` URL.
+  - `is_github_repo_url()`: checks whether a URL is a GitHub repository URL.
+  - `create_s3_url()`: creates an S3 URL from a bucket name and object path.
+  - `is_s3_base_fs()`: checks whether an object of class `<SubTreeFileSystem>` is a base file system (i.e. the root of a cloud hub).
+
+# hubUtils 0.4.0
+
+* Released schemas are now shipped with the package, so an internet connection
+  is no longer necessary for local validation. Released versions of `hubUtils` will always only contain released versions of schemas while dev versions from `hubUtils` (installed from GitHub) may contain versions of schema under active development.
+* Added `subset_task_id_names()` function to subset task ID names from a character vector of column names (#149).
+* Added functions `subset_task_id_cols()` and `subset_std_cols()` to subset a `model_out_tbl` or submission `tbl` to task ID or standard (non-task ID) columns respectively (#149).
+
+# hubUtils 0.3.0
+
+* `schema_id` version checks silenced by default in `read_config()` and `read_config_file()`.  
+* Add and export `hubValidations` functions `get_hub_timezone()`, `get_hub_model_output_dir()` and `get_hub_file_formats()`  for extracting hub metadata to `hubUtils` package.
+* Add new function `get_hub_derived_task_ids()` to extract round or hub level derived task ID values from a `tasks.json` config file.
+
+# hubUtils 0.2.0
+
+* Add family of functions for extracting the version number from a variety of sources:
+  - `get_version_config()`: extract version from a `<config>` class object.
+  - `get_version_config_file()`: extract version from a config file by specifying a `config_path`.
+  - `get_version_hub()`: extract version from a config file by specifying a `hub_path`.
+* Add family of functions for comparing the version number extracted from a variety of sources to a given version number (#171):
+  - `version_equal()`: Check whether a schema version property is equal to.
+  - `version_gte()`: Check whether a schema version property is equal to or greater than.
+  - `version_gt()`: Check whether a schema version property is greater than.
+  - `version_lte()`: Check whether a schema version property is equal to or less than.
+  - `version_lt()`: Check whether a schema version property is less than.
+* `<config>` class objects now have a `type` attribute to track what type of config they contain (i.e `"tasks"` or `"admin"`).
+* `read_config()` and `read_config_file()` will attempt to coerce their output a `<config>` class object, with a warning if unsuccessful (#173).
+* Add `as_config()` function to coerce a config list to a `<config>` class object (from the `hubAdmin` package) (#173).
+* Fix bug in `extract_schema_version()` where only single digits from each version component were being extracted.
+* Fix documentation for `get_schema_version_latest()` to no longer use `v1.0.0`
+
 # hubUtils 0.1.7
 
 * First submission to CRAN
