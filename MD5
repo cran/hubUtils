@@ -1,12 +1,12 @@
-3b626803ff1ff07c358c32e5d59bdd71 *DESCRIPTION
+2252502aae763d200cd11b3aedb55dc5 *DESCRIPTION
 059542c35997e4a7a168ce4daf9f7062 *LICENSE
 34cf9735da9e732e3b130d04d08f0418 *NAMESPACE
-6e1a90ccafb3028203e3a59d611f8857 *NEWS.md
+b8e5b0e19a808e1b30b9843dcc08fe88 *NEWS.md
 a8f55871af0c10b0a64f4158e20aa592 *R/as_config.R
 41c82afd758837f002dbd895b9bd4b74 *R/as_model_out_tbl.R
 44ff8f37d769d1cc6bd24688a5188ada *R/back-compatibility.R
 274b9053638242048845b25c115b368a *R/check_deprecated_schema.R
-79352fe2cf92c8eab3935c6286f807d0 *R/convert_output_type.R
+8cc68483e1a47e20a3613f81eb48d8eb *R/convert_output_type.R
 a9b3faa61d23dd3ab0ca4675b5c3323a *R/data.R
 74a2df0d78453399a9d1c34e0884f0f0 *R/globals.R
 8084a50b7b3b5af49a43960512cf885d *R/model_id_merge.R
@@ -266,7 +266,7 @@ c27ff0f11a7423fa4dc14a9179026340 *tests/testthat/_snaps/as_config.md
 7e43c3fac7614aff0100e56fa42a8fbb *tests/testthat/test-as_config.R
 ba90ca5053982566081c77d750e57521 *tests/testthat/test-as_model_out_tbl.R
 4623761ae1d45fa2385b51c482dc8e6e *tests/testthat/test-check_deprecated_schema.R
-6a8299447b5f5f30442842d6f2d58291 *tests/testthat/test-convert_output_type.R
+83826fba9af1a434331867602acde294 *tests/testthat/test-convert_output_type.R
 1c6ea367a36e01c1d3bf9d67c8f5290e *tests/testthat/test-model_id_merge.R
 8bf5bbd7e2870a25f59b46ce23afa95e *tests/testthat/test-read_config.R
 950fa73080c83a18160a7cb31f15294d *tests/testthat/test-utils-get_hub.R

@@ -1,5 +1,5 @@
 Package: hubUtils
-Version: 1.2.0
+Version: 1.2.1
 Title: Core 'hubverse' Utilities
 Authors@R: c(
     person("Anna", "Krystalli", , "annakrystalli@googlemail.com", role = c("aut", "cre"),
@@ -32,7 +32,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2026-01-13 09:35:59 UTC; Anna
+Packaged: 2026-06-29 10:19:34 UTC; Anna
 Author: Anna Krystalli [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-2378-4915>),
   Li Shandross [aut],
@@ -43,4 +43,4 @@ Author: Anna Krystalli [aut, cre] (ORCID:
   Consortium of Infectious Disease Modeling Hubs [cph]
 Maintainer: Anna Krystalli <annakrystalli@googlemail.com>
 Repository: CRAN
-Date/Publication: 2026-01-13 10:00:02 UTC
+Date/Publication: 2026-07-15 08:10:15 UTC
